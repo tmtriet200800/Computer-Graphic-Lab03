@@ -2,6 +2,10 @@
 #include "includes/OvalDrawer/CircleDrawer.h"
 #include "includes/TriangleDrawer.h"
 #include "includes/PolygonDrawer.h"
+#include "includes/RectangleDrawer/RectangleDrawer.h"
+#include "includes/RectangleDrawer/SquareDrawer.h"
+#include "includes/OtherDrawer/StarDrawer.h"
+
 static int window;
 static int menu_id;
 static int triganle_menu_id;
@@ -25,6 +29,9 @@ TriangleDrawer td;
 OvalDrawer od;
 CircleDrawer cd;
 PolygonDrawer pd;
+RectangleDrawer rd;
+SquareDrawer sd;
+StarDrawer stad;
 
 void menu(int num){
   if(num == 0){
@@ -50,12 +57,17 @@ void createMenu(void){
     oval_menu_id = glutCreateMenu(menu);
     glutAddMenuEntry("Hinh tron", 6);
     glutAddMenuEntry("Hinh eclipse", 7);
+
+    other_menu_id = glutCreateMenu(menu);
+    glutAddMenuEntry("Hinh ngoi sao", 8);
+    glutAddMenuEntry("Hinh mui ten", 9);
     
     menu_id = glutCreateMenu(menu);
     glutAddMenuEntry("Duong thang", 1); 
     glutAddSubMenu("Tam giac", triganle_menu_id);
     glutAddSubMenu("Tu giac", rectangle_menu_id);  
-    glutAddSubMenu("Oval", oval_menu_id);      
+    glutAddSubMenu("Oval", oval_menu_id);  
+    glutAddSubMenu("Hinh khac", other_menu_id);          
     glutAddMenuEntry("Quit", 0);     
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 } 
@@ -68,25 +80,44 @@ void display(){
     cout << drawing << " " << drawType << endl;
 
     if(drawing == true){
-      if(drawType == 2){
-        cout << "Draw tam giac vuong can with scale: " << scaleY << endl;    
-        td.drawRight(startX, startY, 1, 0, 0, scaleY);
-      }
+      switch(drawType){
+        case 2:
+          cout << "Draw tam giac vuong can with scale: " << scaleY << endl;    
+          td.drawRight(startX, startY, 1, 0, 0, scaleY);
+          break;
+        
+        case 3:
+          cout << "Draw tam giac vuong can with scale: " << scaleY << endl;    
+          td.drawIsosceles(startX, startY, 1, 0, 0, scaleY);
+          break;
 
+        case 4:
+          cout << "Draw rectangle with scaleX: " << scaleX << ", scaleY: " << scaleY << endl;
+          rd.draw(startX, startY, scaleX, scaleY);
+          break;
 
-      if(drawType == 3){
-        cout << "Draw tam giac vuong can with scale: " << scaleY << endl;    
-        td.drawIsosceles(startX, startY, 1, 0, 0, scaleY);
-      }
+        case 5:
+          cout << "Draw square with scale: " << scaleY << endl;
+          sd.draw(startX, startY, scaleY);
+          break;
 
-      if(drawType == 6){
-        cout << "Draw circle with scaleY: " << scaleY << endl;
-        cd.draw(startX, startY, scaleY);
-      }
+        case 6:
+          cout << "Draw circle with scaleY: " << scaleY << endl;
+          cd.draw(startX, startY, scaleY);
+          break;
 
-      if(drawType == 7){
-        cout << "Draw eclipse with scaleX: " << scaleX << ", scaleY: " << scaleY << endl;
-        od.draw(startX, startY, scaleX, scaleY);
+        case 7:
+          cout << "Draw eclipse with scaleX: " << scaleX << ", scaleY: " << scaleY << endl;
+          od.draw(startX, startY, scaleX, scaleY);
+          break;
+
+        case 8:
+          cout << "Draw start with scale: " << scaleY << endl;
+          stad.draw(startX, startY, scaleY);
+          break;
+
+        default:
+          break;
       }
     }
 

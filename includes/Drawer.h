@@ -7,6 +7,7 @@ using namespace std;
 class Drawer  {
 public:
     void drawPixel(float x, float y, float red, float green, float blue);
+    void drawPoly(vector<pair<double, double>> points);
 };
 
 #endif
