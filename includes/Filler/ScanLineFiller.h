@@ -1,6 +1,6 @@
 #ifndef ScanLineFiller_H
 #define ScanLineFiller_H
-#include "Filler.h"
+#include "../Filler.h"
 #define maxBucket 1000
 
 struct EdgeBucket{

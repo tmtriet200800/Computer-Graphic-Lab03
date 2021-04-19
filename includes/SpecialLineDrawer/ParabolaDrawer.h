@@ -1,6 +1,6 @@
 #ifndef ParabolaDrawer_H
 #define ParabolaDrawer_H
-#include "Drawer.h"
+#include "../Drawer.h"
 
 class ParabolaDrawer : public Drawer  {
 public:

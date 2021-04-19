@@ -1,6 +1,6 @@
 #ifndef FloodFiller_H
 #define FloodFiller_H
-#include "Filler.h"
+#include "../Filler.h"
 
 class FloodFiller : public Filler {
 public:

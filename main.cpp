@@ -1,10 +1,16 @@
 #include "includes/OvalDrawer/OvalDrawer.h"
 #include "includes/OvalDrawer/CircleDrawer.h"
-#include "includes/TriangleDrawer.h"
-#include "includes/PolygonDrawer.h"
+#include "includes/TriangleDrawer/TriangleDrawer.h"
+#include "includes/PolygonDrawer/HexagonDrawer.h"
+#include "includes/PolygonDrawer/PentagonDrawer.h"
 #include "includes/RectangleDrawer/RectangleDrawer.h"
 #include "includes/RectangleDrawer/SquareDrawer.h"
 #include "includes/OtherDrawer/StarDrawer.h"
+#include "includes/OtherDrawer/ArrowDrawer.h"
+#include "includes/MathDrawer/PlusDrawer.h"
+#include "includes/MathDrawer/MultipleDrawer.h"
+#include "includes/MathDrawer/MinusDrawer.h"
+#include "includes/Filler/FloodFiller.h"
 
 static int window;
 static int menu_id;
@@ -28,10 +34,16 @@ bool drawing = false;
 TriangleDrawer td;
 OvalDrawer od;
 CircleDrawer cd;
-PolygonDrawer pd;
+HexagonDrawer hexagonDrawer;
+PentagonDrawer pentagonDrawer;
 RectangleDrawer rd;
 SquareDrawer sd;
 StarDrawer stad;
+ArrowDrawer ard;
+PlusDrawer plusDrawer;
+MinusDrawer minusDrawer;
+MultipleDrawer multipleDrawer;
+FloodFiller floodFiller;
 
 void menu(int num){
   if(num == 0){
@@ -61,25 +73,47 @@ void createMenu(void){
     other_menu_id = glutCreateMenu(menu);
     glutAddMenuEntry("Hinh ngoi sao", 8);
     glutAddMenuEntry("Hinh mui ten", 9);
-    
+
+    math_menu_id = glutCreateMenu(menu);
+    glutAddMenuEntry("Dau cong", 10);
+    glutAddMenuEntry("Dau tru", 11);
+    glutAddMenuEntry("Dau nhan", 12);
+    glutAddMenuEntry("Dau chia", 13);
+
+    polygon_menu_id = glutCreateMenu(menu);
+    glutAddMenuEntry("Ngu giac deu", 14);
+    glutAddMenuEntry("Luc giac deu", 15);
+
+    color_menu_id = glutCreateMenu(menu);
+    glutAddMenuEntry("Do", 16);
+    glutAddMenuEntry("Xanh", 17);
+    glutAddMenuEntry("Vang", 18);
+
     menu_id = glutCreateMenu(menu);
     glutAddMenuEntry("Duong thang", 1); 
     glutAddSubMenu("Tam giac", triganle_menu_id);
     glutAddSubMenu("Tu giac", rectangle_menu_id);  
     glutAddSubMenu("Oval", oval_menu_id);  
-    glutAddSubMenu("Hinh khac", other_menu_id);          
-    glutAddMenuEntry("Quit", 0);     
+    glutAddSubMenu("Hinh khac", other_menu_id); 
+    glutAddSubMenu("Dau", math_menu_id);
+    glutAddSubMenu("Da giac deu", polygon_menu_id);
+    glutAddSubMenu("To mau", color_menu_id);         
+    glutAddMenuEntry("Quit", 0);
+
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 } 
 
 void display(){
-    glClear(GL_COLOR_BUFFER_BIT);
-    glColor3f(0.0, 0.0, 0.0);
-    glPointSize(1.0);
-
     cout << drawing << " " << drawType << endl;
 
     if(drawing == true){
+
+      if(drawType < 16){
+        glClear(GL_COLOR_BUFFER_BIT);
+        glColor3f(0.0, 0.0, 0.0);
+        glPointSize(1.0);
+      }
+      
       switch(drawType){
         case 2:
           cout << "Draw tam giac vuong can with scale: " << scaleY << endl;    
@@ -116,12 +150,49 @@ void display(){
           stad.draw(startX, startY, scaleY);
           break;
 
-        default:
+        case 9:
+          cout << "Draw arrow with scaleX: " << scaleX << ", scaleY: " << scaleY << endl;
+          ard.draw(startX, startY, scaleX, scaleY);
+          break;
+
+        case 10:
+          cout << "Draw plus with scale: " << scaleY << endl;
+          plusDrawer.draw(startX, startY, scaleY);
+          break;
+
+        case 11:
+          cout << "Draw minus with scale: " << scaleY << endl;
+          minusDrawer.draw(startX, startY, scaleY);
+          break;
+        
+        case 12:
+          cout << "Draw multiple with scale: " << scaleY << endl;
+          multipleDrawer.draw(startX, startY, scaleY);
+          break;    
+
+        case 14:
+          cout << "Draw pentagon with scale: " << scaleY << endl;
+          pentagonDrawer.draw(startX, startY, scaleY);
+          break;    
+
+        case 15:
+          cout << "Draw hexagon with scale: " << scaleY << endl;
+          hexagonDrawer.draw(startX, startY, scaleY);
+          break; 
+
+        case 16:
+          cout << "Fill red color" << endl;
+          Color newColor = {1.0f, 0.0f, 0.0f};
+          Color oldColor = {0.0f, 0.0f, 0.0f};
+
+          floodFiller.fill(startX, startY, oldColor, newColor);
           break;
       }
+
+      cout << "Flush" << endl; 
+      glFlush();
     }
 
-    glFlush();
 }
 
 
@@ -143,6 +214,7 @@ void onMouseClick(int button, int state, int x, int y)
         drawing = true;
         startX = x;
         startY = y;
+        display();
     }
     else{
       cout << "End drawing" << endl;

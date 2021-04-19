@@ -1,6 +1,6 @@
 #ifndef TriangleDrawer_H
 #define TriangleDrawer_H
-#include "Drawer.h"
+#include "../Drawer.h"
 
 class TriangleDrawer : public Drawer  {
 public:

@@ -1,6 +1,6 @@
 #ifndef HyperbolaDrawer_H
 #define HyperbolaDrawer_H
-#include "Drawer.h"
+#include "../Drawer.h"
 
 class HyperbolaDrawer : public Drawer  {
 public:
