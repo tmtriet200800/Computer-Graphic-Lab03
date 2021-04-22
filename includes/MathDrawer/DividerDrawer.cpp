@@ -6,7 +6,7 @@ DividerDrawer::DividerDrawer(){
 
 }
 
-vector<pair<double, double>> DividerDrawer::draw(float xt, float yt, float scale){
+void DividerDrawer::draw(float xt, float yt, float scale){
     CircleDrawer cd;
     MinusDrawer md;
 

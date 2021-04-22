@@ -5,7 +5,7 @@
 class DividerDrawer : public Drawer  {
 public:
   DividerDrawer();
-  vector<pair<double, double>> draw(float xt, float yt, float scale);
+  void draw(float xt, float yt, float scale);
 };
 
 #endif
