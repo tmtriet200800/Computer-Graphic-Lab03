@@ -2,7 +2,7 @@
 
 HexagonDrawer::HexagonDrawer(){};
 
-void HexagonDrawer::draw(float xt, float yt, float scale){
+vector<pair<double, double>> HexagonDrawer::draw(float xt, float yt, float scale){
     double r = scale;
     double pi = 3.14;
 
@@ -18,4 +18,6 @@ void HexagonDrawer::draw(float xt, float yt, float scale){
     points.push_back(make_pair(xt - r, yt));
 
     Drawer::drawPoly(points);
+
+    return points;
 }

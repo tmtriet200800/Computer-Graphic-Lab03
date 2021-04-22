@@ -1,3 +1,4 @@
+#include "includes/LineDrawer/LineDrawer.h"
 #include "includes/OvalDrawer/OvalDrawer.h"
 #include "includes/OvalDrawer/CircleDrawer.h"
 #include "includes/TriangleDrawer/TriangleDrawer.h"
@@ -10,7 +11,25 @@
 #include "includes/MathDrawer/PlusDrawer.h"
 #include "includes/MathDrawer/MultipleDrawer.h"
 #include "includes/MathDrawer/MinusDrawer.h"
+#include  "includes/MathDrawer/DividerDrawer.h"
+
 #include "includes/Filler/FloodFiller.h"
+#include "includes/Filler/ScanLineFiller.h"
+#include "includes/Filler/BoundaryFiller.h"
+
+struct Shape{
+  int type;
+  int startX;
+  int startY;
+  int endX;
+  int endY;
+  int scaleX;
+  int scaleY;
+  vector<pair<double, double>> points;
+  Color color;
+};
+
+vector<Shape> historyShape;
 
 static int window;
 static int menu_id;
@@ -26,8 +45,17 @@ static int value = 0;
 static int drawType = -1;
 static int startX = -1;
 static int startY = -1;
+static int endX = -1;
+static int endY = -1;
 static int scaleX = 1;
 static int scaleY = 1;
+
+
+int vis[MAX_WIDTH][MAX_HEIGHT];
+
+
+vector<pair<double, double>> points;
+Color color;
 
 bool drawing = false;
 
@@ -43,7 +71,12 @@ ArrowDrawer ard;
 PlusDrawer plusDrawer;
 MinusDrawer minusDrawer;
 MultipleDrawer multipleDrawer;
+DividerDrawer dividerDrawer;
+LineDrawer lineDrawer;
+
 FloodFiller floodFiller;
+ScanLineFiller scanlineFiller;
+BoundaryFiller boundaryFiller;
 
 void menu(int num){
   if(num == 0){
@@ -53,8 +86,92 @@ void menu(int num){
     drawType = num;
   }
   glutPostRedisplay();
-} 
+}
 
+void drawByType(int drawType, int startX, int startY, int endX, int endY, int scaleX, int scaleY){
+    switch(drawType){
+      case 1:
+        // cout  << startX << " " << startY << " " << endX << " " << endY << endl;
+        lineDrawer.drawByOpenGL(startX, startY, endX, endY);
+        break;
+      case 2:
+        // cout << "Draw tam giac vuong can with scale: " << scaleY << endl;    
+        points = td.drawRight(startX, startY, scaleY);
+        break;
+      
+      case 3:
+        // cout << "Draw tam giac vuong can with scale: " << scaleY << endl;    
+        points = td.drawIsosceles(startX, startY, scaleY);
+        break;
+
+      case 4:
+        // cout << "Draw rectangle with scaleX: " << scaleX << ", scaleY: " << scaleY << endl;
+        points = rd.draw(startX, startY, scaleX, scaleY);
+        break;
+
+      case 5:
+        // cout << "Draw square with scale: " << scaleY << endl;
+        points = sd.draw(startX, startY, scaleY);
+        break;
+
+      case 6:
+        // cout << "Draw circle with scaleY: " << scaleY << endl;
+        points = cd.draw(startX, startY, scaleY);
+        break;
+
+      case 7:
+        // cout << "Draw eclipse with scaleX: " << scaleX << ", scaleY: " << scaleY << endl;
+        points = od.draw(startX, startY, scaleX, scaleY);
+        break;
+
+      case 8:
+        // cout << "Draw start with scale: " << scaleY << endl;
+        points = stad.draw(startX, startY, scaleY);
+        break;
+
+      case 9:
+        // cout << "Draw arrow with scaleX: " << scaleX << ", scaleY: " << scaleY << endl;
+        points = ard.draw(startX, startY, scaleX, scaleY);
+        break;
+
+      case 10:
+        // cout << "Draw plus with scale: " << scaleY << endl;
+        points = plusDrawer.draw(startX, startY, scaleY);
+        break;
+
+      case 11:
+        // cout << "Draw minus with scale: " << scaleY << endl;
+        points = minusDrawer.draw(startX, startY, scaleY);
+        break;
+      
+      case 12:
+        // cout << "Draw multiple with scale: " << scaleY << endl;
+        points = multipleDrawer.draw(startX, startY, scaleY);
+        break;    
+
+      case 13:
+        dividerDrawer.draw(startX, startY, scaleY);
+        break;
+
+      case 14:
+        // cout << "Draw pentagon with scale: " << scaleY << endl;
+        points = pentagonDrawer.draw(startX, startY, scaleY);
+        break;    
+
+      case 15:
+        // cout << "Draw hexagon with scale: " << scaleY << endl;
+        points = hexagonDrawer.draw(startX, startY, scaleY);
+        break; 
+    }
+}
+
+void redraw(){
+  // cout << historyShape.size() << endl;
+
+  for(auto shape : historyShape){
+    drawByType(shape.type, shape.startX, shape.startY, shape.endX, shape.endY, shape.scaleX, shape.scaleY);
+  }
+}
 
 void createMenu(void){     
     triganle_menu_id = glutCreateMenu(menu);
@@ -104,104 +221,32 @@ void createMenu(void){
 } 
 
 void display(){
-    cout << drawing << " " << drawType << endl;
+    // cout << drawing << " " << drawType << " " << startX << " " << startY << endl;
 
     if(drawing == true){
-
       if(drawType < 16){
         glClear(GL_COLOR_BUFFER_BIT);
         glColor3f(0.0, 0.0, 0.0);
         glPointSize(1.0);
-      }
-      
-      switch(drawType){
-        case 2:
-          cout << "Draw tam giac vuong can with scale: " << scaleY << endl;    
-          td.drawRight(startX, startY, 1, 0, 0, scaleY);
-          break;
-        
-        case 3:
-          cout << "Draw tam giac vuong can with scale: " << scaleY << endl;    
-          td.drawIsosceles(startX, startY, 1, 0, 0, scaleY);
-          break;
 
-        case 4:
-          cout << "Draw rectangle with scaleX: " << scaleX << ", scaleY: " << scaleY << endl;
-          rd.draw(startX, startY, scaleX, scaleY);
-          break;
-
-        case 5:
-          cout << "Draw square with scale: " << scaleY << endl;
-          sd.draw(startX, startY, scaleY);
-          break;
-
-        case 6:
-          cout << "Draw circle with scaleY: " << scaleY << endl;
-          cd.draw(startX, startY, scaleY);
-          break;
-
-        case 7:
-          cout << "Draw eclipse with scaleX: " << scaleX << ", scaleY: " << scaleY << endl;
-          od.draw(startX, startY, scaleX, scaleY);
-          break;
-
-        case 8:
-          cout << "Draw start with scale: " << scaleY << endl;
-          stad.draw(startX, startY, scaleY);
-          break;
-
-        case 9:
-          cout << "Draw arrow with scaleX: " << scaleX << ", scaleY: " << scaleY << endl;
-          ard.draw(startX, startY, scaleX, scaleY);
-          break;
-
-        case 10:
-          cout << "Draw plus with scale: " << scaleY << endl;
-          plusDrawer.draw(startX, startY, scaleY);
-          break;
-
-        case 11:
-          cout << "Draw minus with scale: " << scaleY << endl;
-          minusDrawer.draw(startX, startY, scaleY);
-          break;
-        
-        case 12:
-          cout << "Draw multiple with scale: " << scaleY << endl;
-          multipleDrawer.draw(startX, startY, scaleY);
-          break;    
-
-        case 14:
-          cout << "Draw pentagon with scale: " << scaleY << endl;
-          pentagonDrawer.draw(startX, startY, scaleY);
-          break;    
-
-        case 15:
-          cout << "Draw hexagon with scale: " << scaleY << endl;
-          hexagonDrawer.draw(startX, startY, scaleY);
-          break; 
-
-        case 16:
-          cout << "Fill red color" << endl;
-          Color newColor = {1.0f, 0.0f, 0.0f};
-          Color oldColor = {0.0f, 0.0f, 0.0f};
-
-          floodFiller.fill(startX, startY, oldColor, newColor);
-          break;
+        redraw();
       }
 
-      cout << "Flush" << endl; 
-      glFlush();
+      drawByType(drawType, startX, startY, endX, endY, scaleX, scaleY);
     }
 
+    glFlush();
 }
 
 
 void drag (int x, int y)
 {
   if(drawing == true){
-    // cout << x << " " << y << endl;
     scaleY = abs(y - startY);
     scaleX = abs(x - startX);
+    endX = x;
+    endY = y;
+
     display();
   }
 }
@@ -209,26 +254,54 @@ void drag (int x, int y)
 void onMouseClick(int button, int state, int x, int y)
 {
   if(button == GLUT_LEFT_BUTTON){
-    if(state == GLUT_DOWN){
-        cout << "Start drawing" << endl;
-        drawing = true;
+    if(state == GLUT_DOWN){ 
+        if(drawType > 0){
+          if(drawType < 16){
+            cout << "Start drawing" << endl;
+            drawing = true;
+          }
+          else{
+            switch(drawType){
+              case 16:
+                boundaryFiller.fill(x, y, Color{1,0,0}, Color{1,1,0}, vis);
+                break;
+              case 17:
+                scanlineFiller.fill(0, 1, 0, points);
+                break;
+              case 18:
+                floodFiller.fill(x, y, Color{0,0,0}, Color{1,1,0}, vis);
+                break;
+            }
+          }
+        }
+
         startX = x;
         startY = y;
-        display();
     }
     else{
-      cout << "End drawing" << endl;
-      drawing = false;
+      if(drawing && drawType != -1){
+        cout << "End drawing" << endl;
+        Shape curShape = {drawType, startX, startY, x, y, scaleX, scaleY, points, color};
+        historyShape.push_back(curShape);
+        drawing = false;
+        drawType = -1;
+      }
     }
   }
 }
 
 int main(int argc, char **argv) {
 
+  for(int i=0;i<MAX_WIDTH;i++){
+    for(int j=0;j<MAX_HEIGHT;j++){
+      vis[i][j]=0;
+    }
+  }
+
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 
-  glutInitWindowSize(640, 480);
+  glutInitWindowSize(MAX_WIDTH, MAX_HEIGHT);
   glutInitWindowPosition(100, 100);
   glutCreateWindow("Lab02");
 
@@ -238,11 +311,11 @@ int main(int argc, char **argv) {
 
   glutDisplayFunc(display);
   glColor3f(0.0f, 0.0f, 0.0f);
-  glPointSize(4.0);
+  glPointSize(1.0);
   glMatrixMode(GL_PROJECTION);
   createMenu();
   glLoadIdentity();
-  gluOrtho2D(0.0, 640.0, 480, 0.0);
+  gluOrtho2D(0.0, MAX_WIDTH, MAX_HEIGHT, 0.0);
   glutMainLoop();
 
   return 0;

@@ -54,3 +54,11 @@ void LineDrawer::drawByOpenGL(float red, float green, float blue, float x1, floa
     glVertex3f( x2, y2, 0.0f );
   glEnd();
 }
+
+void LineDrawer::drawByOpenGL(float x1, float y1, float x2, float y2){
+  glBegin( GL_LINES );
+    glColor3f( 1, 1, 0 );
+    glVertex3f( x1, y1, 0.0f );  
+    glVertex3f( x2, y2, 0.0f );
+  glEnd();
+}

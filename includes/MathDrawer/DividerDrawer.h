@@ -1,10 +1,10 @@
-#ifndef HexagonDrawer_H
-#define HexagonDrawer_H
+#ifndef DividerDrawer_H
+#define DividerDrawer_H
 #include "../Drawer.h"
 
-class HexagonDrawer : public Drawer  {
+class DividerDrawer : public Drawer  {
 public:
-  HexagonDrawer();
+  DividerDrawer();
   vector<pair<double, double>> draw(float xt, float yt, float scale);
 };
 

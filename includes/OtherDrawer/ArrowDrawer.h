@@ -5,7 +5,7 @@
 class ArrowDrawer : public Drawer  {
 public:
   ArrowDrawer();
-  void draw(float xt, float yt, float scaleX, float scaleY);
+  vector<pair<double, double>> draw(float xt, float yt, float scaleX, float scaleY);
 };
 
 #endif

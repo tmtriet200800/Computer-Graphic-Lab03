@@ -18,6 +18,12 @@
         "bitset": "cpp",
         "complex": "cpp",
         "limits": "cpp",
-        "memory": "cpp"
+        "memory": "cpp",
+        "*.tcc": "cpp",
+        "functional": "cpp",
+        "random": "cpp",
+        "iomanip": "cpp",
+        "istream": "cpp",
+        "streambuf": "cpp"
     }
 }

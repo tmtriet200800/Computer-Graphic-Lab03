@@ -5,7 +5,7 @@
 class SquareDrawer : public RectangleDrawer {
 public:
   SquareDrawer();
-  void draw(float xt, float yt, float scale);
+  vector<pair<double, double>> draw(float xt, float yt, float scale);
 };
 
 #endif

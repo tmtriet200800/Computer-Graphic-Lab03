@@ -5,7 +5,7 @@
 class StarDrawer : public Drawer  {
 public:
   StarDrawer();
-  void draw(float xt, float yt, float scale);
+  vector<pair<double, double>> draw(float xt, float yt, float scale);
 };
 
 #endif

@@ -16,7 +16,7 @@ struct EdgeTableTuple{
 
 class ScanLineFiller : public Filler {
 public:
-    EdgeTableTuple edgeTable[480], activeEdgeTable;
+    EdgeTableTuple edgeTable[MAX_HEIGHT], activeEdgeTable;
 
     ScanLineFiller();
 
@@ -25,8 +25,9 @@ public:
     void storeEdgeInTable (int x1,int y1, int x2, int y2);
     void insertionSort(EdgeTableTuple *ett);
     void removeEdgeByYmax(EdgeTableTuple *Tup,int yy);
-    void updatexbyslopeinv(EdgeTableTuple *Tup);
-    void fill();
+    void updateWithSlope(EdgeTableTuple *Tup);
+    void fillSinglePixel(float red, float green, float blue);
+    void fill(float red, float green, float blue, vector<pair<double, double>> points);
 };
 
 #endif

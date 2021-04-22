@@ -2,7 +2,7 @@
 
 StarDrawer::StarDrawer(){}
 
-void StarDrawer::draw(float xt, float yt, float scale){
+vector<pair<double, double>> StarDrawer::draw(float xt, float yt, float scale){
     double r2 = scale;
     double r = r2 / 2;
     double pi = 3.14;
@@ -30,4 +30,6 @@ void StarDrawer::draw(float xt, float yt, float scale){
     points.push_back(make_pair( xt - r*sinf(angle), yt - r*cosf(angle)));
 
     Drawer::drawPoly(points);
+
+    return points;
 }

@@ -5,7 +5,7 @@
 class PlusDrawer : public Drawer  {
 public:
   PlusDrawer();
-  void draw(float xt, float yt, float scale);
+  vector<pair<double, double>> draw(float xt, float yt, float scale);
 };
 
 #endif

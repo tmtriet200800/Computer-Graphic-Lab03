@@ -2,8 +2,7 @@
 
 PentagonDrawer::PentagonDrawer(){};
 
-
-void PentagonDrawer::draw(float xt, float yt, float scale){
+vector<pair<double, double>> PentagonDrawer::draw(float xt, float yt, float scale){
     double r = scale;
     double pi = 3.14;
 
@@ -20,4 +19,6 @@ void PentagonDrawer::draw(float xt, float yt, float scale){
     points.push_back(make_pair(xt - edge*sinf(1.5*angle), yt - r + edge*cosf(1.5*angle)));
 
     Drawer::drawPoly(points);
+
+    return points;
 }

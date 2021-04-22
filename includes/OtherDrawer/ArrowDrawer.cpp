@@ -2,7 +2,7 @@
 
 ArrowDrawer::ArrowDrawer(){}
 
-void ArrowDrawer::draw(float xt, float yt, float scaleX, float scaleY){
+vector<pair<double, double>> ArrowDrawer::draw(float xt, float yt, float scaleX, float scaleY){
     vector<pair<double, double>> points;
 
     double w = scaleX;
@@ -19,4 +19,6 @@ void ArrowDrawer::draw(float xt, float yt, float scaleX, float scaleY){
     points.push_back(make_pair(xt - w / 2, yt + h / 2));
 
     Drawer::drawPoly(points);
+
+    return points;
 }

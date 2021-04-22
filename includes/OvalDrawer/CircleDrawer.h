@@ -5,7 +5,7 @@
 class CircleDrawer : public OvalDrawer  {
 public:
   CircleDrawer();
-  void draw(float x, float y, float scaleY);
+  vector<pair<double, double>> draw(float x, float y, float scaleY);
 };
 
 #endif

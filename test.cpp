@@ -5,10 +5,12 @@
 // #include <stdio.h>
 // #include <math.h>
 #include <GL/glut.h>
+#include "includes/RectangleDrawer/RectangleDrawer.h"
 #define maxHt 800
 #define maxWd 600
-#define maxVer 10000
+#define maxVer 1000
   
+RectangleDrawer rd;
 FILE *fp;
   
 // Start from lower left corner
@@ -102,6 +104,7 @@ void insertionSort(EdgeTableTuple *ett)
   
 void storeEdgeInTuple (EdgeTableTuple *receiver,int ym,int xm,float slopInv)
 {
+
     // both used for edgetable and active edge table..
     // The edge tuple sorted in increasing ymax and x of the lower end.
     (receiver->buckets[(receiver)->countEdgeBucket]).ymax = ym;
@@ -110,6 +113,8 @@ void storeEdgeInTuple (EdgeTableTuple *receiver,int ym,int xm,float slopInv)
               
     // sort the buckets
     insertionSort(receiver);
+
+
           
     (receiver->countEdgeBucket)++; 
       
@@ -127,14 +132,14 @@ void storeEdgeInTable (int x1,int y1, int x2, int y2)
     }
     else
     {
-    m = ((float)(y2-y1))/((float)(x2-x1));
-      
-    // horizontal lines are not stored in edge table
-    if (y2==y1)
-        return;
-          
-    minv = (float)1.0/m;
-    printf("\nSlope string for %d %d & %d %d: %f",x1,y1,x2,y2,minv);
+        m = ((float)(y2-y1))/((float)(x2-x1));
+
+        // horizontal lines are not stored in edge table
+        if (y2==y1)
+            return;
+
+        minv = (float)1.0/m;
+        printf("\nSlope string for %d %d & %d %d: %f",x1,y1,x2,y2,minv);
     }
       
     if (y1>y2)
@@ -150,6 +155,7 @@ void storeEdgeInTable (int x1,int y1, int x2, int y2)
         xwithyminTS=x1;     
     }
     // the assignment part is done..now storage..
+
     storeEdgeInTuple(&EdgeTable[scanline],ymaxTS,xwithyminTS,minv);
       
       
@@ -342,35 +348,48 @@ void drawPolyDino()
     glColor3f(1.0f,0.0f,0.0f);
     int count = 0,x1,y1,x2,y2;
     rewind(fp);
-    while(!feof(fp) )
-    {
-        count++;
-        if (count>2)
-        {
-            x1 = x2;
-            y1 = y2;
-            count=2;
-        }
-        if (count==1)
-        {
-            fscanf(fp, "%d,%d", &x1, &y1);
-        }
-        else
-        {
-            fscanf(fp, "%d,%d", &x2, &y2);
-            printf("\n%d,%d", x2, y2);
-            glBegin(GL_LINES);
-                glVertex2i( x1, y1);
-                glVertex2i( x2, y2);
-            glEnd();
-            storeEdgeInTable(x1, y1, x2, y2);//storage of edges in edge table.
+    // while(!feof(fp) )
+    // {
+    //     count++;
+    //     if (count>2)
+    //     {
+    //         x1 = x2;
+    //         y1 = y2;
+    //         count=2;
+    //     }
+    //     if (count==1)
+    //     {
+    //         fscanf(fp, "%d,%d", &x1, &y1);
+    //     }
+    //     else
+    //     {
+    //         fscanf(fp, "%d,%d", &x2, &y2);
+    //         printf("\n%d,%d", x2, y2);
+    //         glBegin(GL_LINES);
+    //             glVertex2i( x1, y1);
+    //             glVertex2i( x2, y2);
+    //         glEnd();
+    //         storeEdgeInTable(x1, y1, x2, y2);//storage of edges in edge table.
               
               
-            glFlush();
-        }
+    //         glFlush();
+    //     }
+    // }
+
+    vector<pair<double, double>> points;
+
+    points = rd.draw(150,200,50,100);
+
+    cout << points.size() << endl;
+    
+    for(int i = 0; i < points.size() - 1; i++){
+        cout << "Loop " << i << " " << points[i].first << " " << points[i].second << " " << points[i + 1].first << " " << points[i+1].second << endl;
+        storeEdgeInTable(int(points[i].first), int(points[i].second), int(points[i + 1].first), int(points[i + 1].second));
     }
-          
-          
+
+    storeEdgeInTable(int(points[points.size() - 1].first), int(points[points.size() - 1].second), int(points[0].first), int(points[0].second));
+
+    glFlush();
 }
   
 void drawDino(void)

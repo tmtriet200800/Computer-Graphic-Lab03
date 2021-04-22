@@ -1,6 +1,6 @@
-#include "FloodFiller.h"
+#include "BoundaryFiller.h"
 
-void FloodFiller::fill(GLint x, GLint y, Color oldColor, Color newColor, int (&vis)[MAX_WIDTH][MAX_HEIGHT]) {
+void BoundaryFiller::fill(GLint x, GLint y, Color fillColor, Color boundaryColor, int (&vis)[MAX_WIDTH][MAX_HEIGHT]) {
 	queue<pair<int, int>> obj;
 
 	obj.push(make_pair(x, y));
@@ -17,9 +17,10 @@ void FloodFiller::fill(GLint x, GLint y, Color oldColor, Color newColor, int (&v
 		
 		Color color = getPixelColor(coord.first, coord.second);
 
-		if(color.r == oldColor.r && color.g == oldColor.g && color.b == oldColor.b)
+		if((color.r != fillColor.r || color.g != fillColor.g || color.b != fillColor.b) &&
+			(color.r != boundaryColor.r || color.g != boundaryColor.g || color.b != boundaryColor.b))
 		{
-			setPixelColor(x, y, newColor);
+			setPixelColor(x, y, fillColor);
 			vis[x][y] = 1;
 
 			if(vis[x+1][y]  == 0){

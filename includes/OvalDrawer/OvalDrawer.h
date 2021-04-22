@@ -5,7 +5,7 @@
 class OvalDrawer : public Drawer  {
 public:
   OvalDrawer();
-  void draw(float x, float y, float scaleX, float scaleY);
+  vector<pair<double, double>> draw(float x, float y, float scaleX, float scaleY);
 };
 
 #endif

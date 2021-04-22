@@ -2,7 +2,7 @@
 
 MultipleDrawer::MultipleDrawer(){};
 
-void MultipleDrawer::draw(float xt, float yt, float scale){
+vector<pair<double, double>> MultipleDrawer::draw(float xt, float yt, float scale){
     double w = 3*scale;
     double h = scale;
 
@@ -61,4 +61,6 @@ void MultipleDrawer::draw(float xt, float yt, float scale){
     final_point.push_back(points[0]);
 
     Drawer::drawPoly(final_point);
+
+    return final_point;
 };

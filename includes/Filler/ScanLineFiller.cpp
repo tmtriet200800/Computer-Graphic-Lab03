@@ -1,10 +1,6 @@
 #include "ScanLineFiller.h"
-
-
 ScanLineFiller::ScanLineFiller(){
-    std::cout << "0 checkpoint" << std::endl;
-
-    for(int i = 0; i < 480; ++i){
+    for(int i = 0; i < MAX_HEIGHT; ++i){
         this->edgeTable[i].count = 0;
     }    
 
@@ -47,8 +43,6 @@ void ScanLineFiller::removeEdgeByYmax(EdgeTableTuple *Tup,int yy)
     {
         if (Tup->buckets[i].max_y == yy)
         {
-            printf("\nRemoved at %d",yy);
-              
             for ( j = i ; j < Tup->count -1 ; j++ )
                 {
                 Tup->buckets[j].max_y =Tup->buckets[j+1].max_y;
@@ -63,16 +57,13 @@ void ScanLineFiller::removeEdgeByYmax(EdgeTableTuple *Tup,int yy)
 
 void ScanLineFiller::storeEdgeInTuple (EdgeTableTuple *receiver,int ym,int xm,float slopInv)
 {
-    // both used for edgetable and active edge table..
-    // The edge tuple sorted in increasing max_y and x of the lower end.
-    (receiver->buckets[(receiver)->count]).max_y = ym;
-    (receiver->buckets[(receiver)->count]).min_x = (float)xm;
-    (receiver->buckets[(receiver)->count]).slopeinverse = slopInv;
+    receiver->buckets[receiver->count].max_y = ym;
+    receiver->buckets[receiver->count].min_x = (float)xm;
+    receiver->buckets[receiver->count].slopeinverse = slopInv;
               
-    // sort the buckets
     insertionSort(receiver);
           
-    (receiver->count)++; 
+    receiver->count++; 
 }
   
 void ScanLineFiller::storeEdgeInTable (int x1,int y1, int x2, int y2)
@@ -88,12 +79,10 @@ void ScanLineFiller::storeEdgeInTable (int x1,int y1, int x2, int y2)
     {
     m = ((float)(y2-y1))/((float)(x2-x1));
       
-    // horizontal lines are not stored in edge table
     if (y2==y1)
         return;
           
     minv = (float)1.0/m;
-    printf("\nSlope string for %d %d & %d %d: %f",x1,y1,x2,y2,minv);
     }
       
     if (y1>y2)
@@ -108,11 +97,10 @@ void ScanLineFiller::storeEdgeInTable (int x1,int y1, int x2, int y2)
         max_yTS=y2;
         xwithyminTS=x1;     
     }
-    // the assignment part is done..now storage..
     storeEdgeInTuple(&this->edgeTable[scanline],max_yTS,xwithyminTS,minv);     
 }
 
-void ScanLineFiller::updatexbyslopeinv(EdgeTableTuple *Tup)
+void ScanLineFiller::updateWithSlope(EdgeTableTuple *Tup)
 {
     int i;
       
@@ -122,42 +110,22 @@ void ScanLineFiller::updatexbyslopeinv(EdgeTableTuple *Tup)
     }
 }
 
-void ScanLineFiller::fill(){
-        /* Follow the following rules:
-    1. Horizontal edges: Do not include in edge table
-    2. Horizontal edges: Drawn either on the bottom or on the top.
-    3. Vertices: If local max or min, then count twice, else count
-        once.
-    4. Either vertices at local minima or at local maxima are drawn.*/
-  
-  
+void ScanLineFiller::fillSinglePixel(float red, float green, float blue){
     int i, j, x1, max_y1, x2, max_y2, FillFlag = 0, coordCount;
       
-    // we will start from scanline 0; 
-    // Repeat until last scanline:
-    for (i=0; i<480; i++)//4. Increment y by 1 (next scan line)
+    for (i=0; i < MAX_HEIGHT; i++)//4. Increment y by 1 (next scan line)
     {
-
-        // 1. Move from ET bucket y to the
-        // AET those edges whose ymin = y (entering edges)
         for (j=0; j<this->edgeTable[i].count; j++)
         {
             storeEdgeInTuple(&this->activeEdgeTable,this->edgeTable[i].buckets[j].
                      max_y,this->edgeTable[i].buckets[j].min_x,
                     this->edgeTable[i].buckets[j].slopeinverse);
         }
-        // printTuple(&this->activeEdgeTable);
           
-        // 2. Remove from AET those edges for 
-        // which y=max_y (not involved in next scan line)
         this->removeEdgeByYmax(&this->activeEdgeTable, i);
           
-        //sort AET (remember: ET is presorted)
         insertionSort(&this->activeEdgeTable);
           
-        // printTuple(&this->activeEdgeTable);
-          
-        //3. Fill lines on scan line y by using pairs of x-coords from AET
         j = 0; 
         FillFlag = 0;
         coordCount = 0;
@@ -173,11 +141,6 @@ void ScanLineFiller::fill(){
                 max_y1 = this->activeEdgeTable.buckets[j].max_y;
                 if (x1==x2)
                 {
-                /* three cases can arrive-
-                    1. lines are towards top of the intersection
-                    2. lines are towards bottom
-                    3. one line is towards top and other is towards bottom
-                */
                     if (((x1==max_y1)&&(x2!=max_y2))||((x1!=max_y1)&&(x2==max_y2)))
                     {
                         x2 = x1;
@@ -202,14 +165,8 @@ void ScanLineFiller::fill(){
               
                 FillFlag = 0;
                   
-                // checking for intersection...
                 if (x1==x2)
                 {
-                /*three cases can arive-
-                    1. lines are towards top of the intersection
-                    2. lines are towards bottom
-                    3. one line is towards top and other is towards bottom
-                */
                     if (((x1==max_y1)&&(x2!=max_y2))||((x1!=max_y1)&&(x2==max_y2)))
                     {
                         x1 = x2;
@@ -230,16 +187,12 @@ void ScanLineFiller::fill(){
               
             if(FillFlag)
             {
-                //drawing actual lines...
-                glColor3f(0.0f,0.7f,0.0f);
-                  
+                glColor3f(red,green,blue);
                 glBegin(GL_LINES);
                 glVertex2i(x1,i);
                 glVertex2i(x2,i);
                 glEnd();
                 glFlush();         
-                  
-                // printf("\nLine drawn from %d,%d to %d,%d",x1,i,x2,i);
             }
               
         }
@@ -247,8 +200,16 @@ void ScanLineFiller::fill(){
         j++;
     } 
               
-          
-    // 5. For each nonvertical edge remaining in AET, update x for new y
-    updatexbyslopeinv(&this->activeEdgeTable);
+    this->updateWithSlope(&this->activeEdgeTable);
     }
+}
+
+void ScanLineFiller::fill(float red,float green,float blue, vector<pair<double,double>> points){
+    for(int i = 0; i < points.size() - 1; i++){
+        this->storeEdgeInTable(points[i].first, points[i].second, points[i + 1].first, points[i + 1].second);
+    }
+
+    this->storeEdgeInTable(points[points.size() - 1].first, points[points.size() - 1].second, points[0].first, points[0].second);
+
+    this->fillSinglePixel(red, green, blue);
 }

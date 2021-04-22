@@ -1,5 +1,8 @@
 #include <GL/glut.h>
 #include <bits/stdc++.h>
+using namespace std;
+#define MAX_WIDTH 800
+#define MAX_HEIGHT 600
 
 class Base{
 public:
@@ -8,8 +11,8 @@ public:
 
     
     Base(){
-        this->width = 640;
-        this->height = 480;
+        this->width = MAX_WIDTH;
+        this->height = MAX_HEIGHT;
     };
 };
 

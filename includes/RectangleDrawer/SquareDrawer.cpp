@@ -2,6 +2,6 @@
 
 SquareDrawer::SquareDrawer(){}
 
-void SquareDrawer::draw(float xt, float yt, float scale){
-    RectangleDrawer::draw(xt, yt, scale, scale);
+vector<pair<double, double>>  SquareDrawer::draw(float xt, float yt, float scale){
+    return RectangleDrawer::draw(xt, yt, scale, scale);
 }

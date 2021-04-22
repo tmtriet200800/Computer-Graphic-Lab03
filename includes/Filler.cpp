@@ -2,7 +2,7 @@
 
 Color Filler::getPixelColor(GLint x, GLint y) {
 	Color color;
-	glReadPixels(x, 480 - y, 1, 1, GL_RGB, GL_FLOAT, &color);
+	glReadPixels(x, 600 - y, 1, 1, GL_RGB, GL_FLOAT, &color);
 	return color;
 }
 
