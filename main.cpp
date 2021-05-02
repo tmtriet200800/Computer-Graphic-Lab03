@@ -12,10 +12,13 @@
 #include "includes/MathDrawer/MultipleDrawer.h"
 #include "includes/MathDrawer/MinusDrawer.h"
 #include  "includes/MathDrawer/DividerDrawer.h"
+#include "includes/Drawer.h"
 
 #include "includes/Filler/FloodFiller.h"
 #include "includes/Filler/ScanLineFiller.h"
 #include "includes/Filler/BoundaryFiller.h"
+
+#include "includes/AffineController/AffineController.h"
 
 struct Shape{
   int type;
@@ -50,11 +53,12 @@ static int endY = -1;
 static int scaleX = 1;
 static int scaleY = 1;
 
-
 int vis[MAX_WIDTH][MAX_HEIGHT];
 
 
 vector<pair<double, double>> points;
+vector<pair<double, double>> customPolygon;
+
 Color color;
 
 bool drawing = false;
@@ -73,10 +77,12 @@ MinusDrawer minusDrawer;
 MultipleDrawer multipleDrawer;
 DividerDrawer dividerDrawer;
 LineDrawer lineDrawer;
+Drawer drawer;
 
 FloodFiller floodFiller;
 ScanLineFiller scanlineFiller;
 BoundaryFiller boundaryFiller;
+AffineController affineController;
 
 void menu(int num){
   if(num == 0){
@@ -88,8 +94,20 @@ void menu(int num){
   glutPostRedisplay();
 }
 
-void drawByType(int drawType, int startX, int startY, int endX, int endY, int scaleX, int scaleY){
+void drawByType(int drawType, int startX, int startY, int endX, int endY, int scaleX, int scaleY, vector<pair<double, double>> &points){
     switch(drawType){
+      case -2:
+        if(customPolygon.size() >= 2){
+          for(int i = 0; i < customPolygon.size() - 1; i++){
+            lineDrawer.drawByOpenGL(customPolygon[i].first, customPolygon[i].second, customPolygon[i + 1].first, customPolygon[i + 1].second);
+          }
+        }
+        break;
+      case -1:
+        if(points.size() > 0){
+          drawer.drawPoly(points);
+        }
+        break;
       case 1:
         // cout  << startX << " " << startY << " " << endX << " " << endY << endl;
         lineDrawer.drawByOpenGL(startX, startY, endX, endY);
@@ -169,7 +187,7 @@ void redraw(){
   // cout << historyShape.size() << endl;
 
   for(auto shape : historyShape){
-    drawByType(shape.type, shape.startX, shape.startY, shape.endX, shape.endY, shape.scaleX, shape.scaleY);
+    drawByType(shape.type, shape.startX, shape.startY, shape.endX, shape.endY, shape.scaleX, shape.scaleY, shape.points);
   }
 }
 
@@ -217,13 +235,13 @@ void createMenu(void){
     glutAddSubMenu("To mau", color_menu_id);         
     glutAddMenuEntry("Quit", 0);
 
-    glutAttachMenu(GLUT_RIGHT_BUTTON);
+    glutAttachMenu(GLUT_MIDDLE_BUTTON);
 } 
 
 void display(){
-    // cout << drawing << " " << drawType << " " << startX << " " << startY << endl;
+    cout << drawing << " " << drawType << " " << startX << " " << startY << endl;
 
-    if(drawing == true){
+    // if(drawing == true){
       if(drawType < 16){
         glClear(GL_COLOR_BUFFER_BIT);
         glColor3f(0.0, 0.0, 0.0);
@@ -232,8 +250,8 @@ void display(){
         redraw();
       }
 
-      drawByType(drawType, startX, startY, endX, endY, scaleX, scaleY);
-    }
+      drawByType(drawType, startX, startY, endX, endY, scaleX, scaleY, points);      
+    // }
 
     glFlush();
 }
@@ -247,6 +265,11 @@ void drag (int x, int y)
     endX = x;
     endY = y;
 
+    display();
+  }
+  else{
+    customPolygon.push_back(make_pair(x, y));
+    drawType = -2;
     display();
   }
 }
@@ -277,20 +300,97 @@ void onMouseClick(int button, int state, int x, int y)
 
         startX = x;
         startY = y;
+        customPolygon[0].first = x;
+        customPolygon[0].second = y;
     }
     else{
       if(drawing && drawType != -1){
         cout << "End drawing" << endl;
         Shape curShape = {drawType, startX, startY, x, y, scaleX, scaleY, points, color};
-        historyShape.push_back(curShape);
+        // historyShape.push_back(curShape);
         drawing = false;
+        drawType = -1;
+      }
+    }
+  }
+  
+  if(button == GLUT_RIGHT_BUTTON){
+    if(state == GLUT_DOWN){
+      cout << "CLICKK RIGHT" << endl;
+
+      if(drawType == -2){
+        cout << "COMPLETE" << endl;
+
+        customPolygon.push_back(make_pair(customPolygon[0].first, customPolygon[0].second));
+        points = customPolygon;
+
+        display();
         drawType = -1;
       }
     }
   }
 }
 
+
+void keyboardHandler(unsigned char Key, int x, int y){
+  cout << Key << endl;
+
+  cout << points[2].first << endl;
+
+  switch (Key)
+  {
+    case '+':
+      // affineController.scale(1.2, historyShape[historyShape.size() - 1].points);
+      affineController.scale(1.2, points);
+
+      break;
+    
+    case '-':
+      affineController.scale(0.8,points);
+      break;
+
+    case 'l':
+    case 'L':
+      affineController.rotate(3.14/6, points);
+      break;
+
+    case 'r':
+    case 'R':
+      affineController.rotate(-3.14/6, points);
+      break;
+
+    default:
+      break;
+  }
+
+  display();
+}
+
+void SpecialKeys(int key, int x, int y)
+{
+  switch (key)
+  {
+    case GLUT_KEY_LEFT:
+      affineController.translate(-10,0, points);
+      break;
+    case GLUT_KEY_RIGHT:
+      affineController.translate(10,0, points);
+      break;
+    case GLUT_KEY_UP:
+      affineController.translate(0,-10, points); 
+      break;
+    case GLUT_KEY_DOWN:
+      affineController.translate(0,10, points);
+      break;
+  }
+
+  display();
+}
+
 int main(int argc, char **argv) {
+
+  customPolygon.push_back(make_pair(startX, startY));
+
 
   for(int i=0;i<MAX_WIDTH;i++){
     for(int j=0;j<MAX_HEIGHT;j++){
@@ -307,9 +407,12 @@ int main(int argc, char **argv) {
 
   glutMotionFunc(drag);
   glutMouseFunc(onMouseClick);
+  glutKeyboardFunc(keyboardHandler);
+  glutSpecialFunc(SpecialKeys);
 
 
-  glutDisplayFunc(display);
+
+  // glutDisplayFunc(display);
   glColor3f(0.0f, 0.0f, 0.0f);
   glPointSize(1.0);
   glMatrixMode(GL_PROJECTION);

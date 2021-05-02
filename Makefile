@@ -4,6 +4,9 @@ build:
 test:
 	g++ test.cpp includes/Drawer.cpp includes/RectangleDrawer/RectangleDrawer.cpp -o test.o -lglut -lGLU -lGL
 
+test3:
+	g++ test3.cpp includes/Drawer.cpp includes/LineDrawer/LineDrawer.cpp -o test.o -lglut -lGLU -lGL
+
 build_win:
 	x86_64-w64-mingw32-gcc -o main64.exe main.cpp includes/*.cpp -lglut -lGLU -lGL
 
